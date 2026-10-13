@@ -35,7 +35,7 @@ function SettingsPage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? "");
-      setName((data.user?.user_metadata?.full_name as string) ?? "");
+      setName((data.user?.user_metadata?.["full_name"] as string) ?? "");
     });
   }, []);
 

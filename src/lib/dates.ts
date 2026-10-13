@@ -64,7 +64,7 @@ export function monthRange(year: number, month0: number): { start: string; end: 
 }
 
 export function brl(value: number): string {
-  const [int, dec] = value.toFixed(2).split(".");
+  const [int = "0", dec = "00"] = value.toFixed(2).split(".");
   return `R$ ${int.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${dec}`;
 }
 

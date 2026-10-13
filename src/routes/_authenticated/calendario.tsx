@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Card, MonthSwitcher, Screen, Title, TripRow } from "@/components/ui";
-import { daysInMonth, formatBR, toISODate } from "@/lib/dates";
+import { brl, daysInMonth, formatBR, toISODate } from "@/lib/dates";
 import {
   dayStatus,
   deleteTrip,
