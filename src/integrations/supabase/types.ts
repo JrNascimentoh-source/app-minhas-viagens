@@ -14,7 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      trips: {
+        Row: {
+          amount: number
+          completed: boolean
+          created_at: string
+          departed_at: string
+          description: string
+          id: string
+          next_reminder_at: string | null
+          paid: boolean
+          period: string
+          registered_at: string | null
+          status: string
+          trip_date: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          completed?: boolean
+          created_at?: string
+          departed_at?: string
+          description?: string
+          id?: string
+          next_reminder_at?: string | null
+          paid?: boolean
+          period: string
+          registered_at?: string | null
+          status?: string
+          trip_date: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          completed?: boolean
+          created_at?: string
+          departed_at?: string
+          description?: string
+          id?: string
+          next_reminder_at?: string | null
+          paid?: boolean
+          period?: string
+          registered_at?: string | null
+          status?: string
+          trip_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
