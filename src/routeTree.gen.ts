@@ -9,50 +9,206 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedNovaViagemRouteImport } from './routes/_authenticated/nova-viagem'
+import { Route as AuthenticatedRelatorioRouteImport } from './routes/_authenticated/relatorio'
+import { Route as AuthenticatedConfirmarIdRouteImport } from './routes/_authenticated/confirmar.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNovaViagemRoute = AuthenticatedNovaViagemRouteImport.update({
+  id: '/nova-viagem',
+  path: '/nova-viagem',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRelatorioRoute = AuthenticatedRelatorioRouteImport.update({
+  id: '/relatorio',
+  path: '/relatorio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConfirmarIdRoute =
+  AuthenticatedConfirmarIdRouteImport.update({
+    id: '/confirmar/$id',
+    path: '/confirmar/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/ajustes': typeof AuthenticatedAjustesRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/nova-viagem': typeof AuthenticatedNovaViagemRoute
+  '/relatorio': typeof AuthenticatedRelatorioRoute
+  '/confirmar/$id': typeof AuthenticatedConfirmarIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/ajustes': typeof AuthenticatedAjustesRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/nova-viagem': typeof AuthenticatedNovaViagemRoute
+  '/relatorio': typeof AuthenticatedRelatorioRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/confirmar/$id': typeof AuthenticatedConfirmarIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
+  '/_authenticated/nova-viagem': typeof AuthenticatedNovaViagemRoute
+  '/_authenticated/relatorio': typeof AuthenticatedRelatorioRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/confirmar/$id': typeof AuthenticatedConfirmarIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/ajustes'
+    | '/calendario'
+    | '/nova-viagem'
+    | '/relatorio'
+    | '/confirmar/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/auth'
+    | '/ajustes'
+    | '/calendario'
+    | '/nova-viagem'
+    | '/relatorio'
+    | '/'
+    | '/confirmar/$id'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/ajustes'
+    | '/_authenticated/calendario'
+    | '/_authenticated/nova-viagem'
+    | '/_authenticated/relatorio'
+    | '/_authenticated/'
+    | '/_authenticated/confirmar/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ajustes': {
+      id: '/_authenticated/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AuthenticatedAjustesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/nova-viagem': {
+      id: '/_authenticated/nova-viagem'
+      path: '/nova-viagem'
+      fullPath: '/nova-viagem'
+      preLoaderRoute: typeof AuthenticatedNovaViagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/relatorio': {
+      id: '/_authenticated/relatorio'
+      path: '/relatorio'
+      fullPath: '/relatorio'
+      preLoaderRoute: typeof AuthenticatedRelatorioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/confirmar/$id': {
+      id: '/_authenticated/confirmar/$id'
+      path: '/confirmar/$id'
+      fullPath: '/confirmar/$id'
+      preLoaderRoute: typeof AuthenticatedConfirmarIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
+  AuthenticatedNovaViagemRoute: typeof AuthenticatedNovaViagemRoute
+  AuthenticatedRelatorioRoute: typeof AuthenticatedRelatorioRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedConfirmarIdRoute: typeof AuthenticatedConfirmarIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
+  AuthenticatedNovaViagemRoute: AuthenticatedNovaViagemRoute,
+  AuthenticatedRelatorioRoute: AuthenticatedRelatorioRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedConfirmarIdRoute: AuthenticatedConfirmarIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
