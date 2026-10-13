@@ -1,0 +1,12 @@
+{
+  "source": "code-archive (minhas-viagens-github.zip)",
+  "capabilities": [
+    { "capability": "App code (Expo/React Native)", "source": "app/, src/", "outcome": "rebuild as TanStack Start web app", "status": "in_progress", "next_action": "recreate screens: home, calendar, report, settings, new-trip, confirm" },
+    { "capability": "Database schema (trips table + RLS)", "source": "supabase/migrations/20261012_create_trips_table.sql", "outcome": "recreate in Lovable Cloud", "status": "pending", "next_action": "write migration" },
+    { "capability": "Auth email/password + Google", "source": "src/auth/AuthProvider.tsx, app/login.tsx", "outcome": "Lovable Cloud auth + Google broker", "status": "pending", "next_action": "build /auth page, configure Google" },
+    { "capability": "Local push reminders every 9h", "source": "src/lib/notifications.ts", "outcome": "not available on web; in-app pending list instead", "status": "accepted_limitation", "next_action": "inform user" },
+    { "capability": "Monthly PDF report", "source": "src/lib/report.ts", "outcome": "print-to-PDF via browser", "status": "pending", "next_action": "report page with print view" },
+    { "capability": "Theme light/dark/auto", "source": "src/theme/ThemeProvider.tsx", "outcome": "recreate with localStorage + media query", "status": "pending", "next_action": "theme provider" },
+    { "capability": "Existing records", "source": "none attached", "outcome": "pending export", "status": "pending", "next_action": "ask for CSV/JSON export after preview" }
+  ]
+}
