@@ -1,4 +1,5 @@
-import { MONTHS, PERIOD_LABEL, brl, formatBR } from "./dates";
+import { MONTHS, PERIOD_LABEL, brl, formatBR, formatTime, periodOf, toISODate } from "./dates";
+import { paymentSummary } from './payments';
 import type { MonthStats } from "./trips";
 import type { Trip } from "./types";
 
@@ -11,13 +12,16 @@ export function buildReportHtml(year: number, month0: number, stats: MonthStats,
     .sort((a, b) => a.trip_date.localeCompare(b.trip_date));
   const rows = registered
     .map(
-      (t) => `<tr>
-        <td>${formatBR(t.trip_date)}</td>
-        <td>${PERIOD_LABEL[t.period]}</td>
+      (t) => {
+        const payment = paymentSummary(t);
+        const end = t.completed_at ?? t.registered_at;
+        return `<tr>
+        <td>${formatBR(t.trip_date)} ${formatTime(t.departed_at)} · ${PERIOD_LABEL[t.period]}<br>${end ? `${formatBR(toISODate(new Date(end)))} ${formatTime(end)} · ${PERIOD_LABEL[periodOf(new Date(end))]}` : 'Fim não informado'}</td>
         <td>${esc(t.description || "-")}</td>
-        <td class="r">${brl(Number(t.amount))}</td>
-        <td>${t.paid ? "Pago" : "A receber"}</td>
-      </tr>`,
+        <td class="r">${brl(payment.gross)}<br>Adiantamento: ${brl(payment.advance)}<br>Desconto: ${brl(payment.discount)}</td>
+        <td>${t.paid ? 'Recebido' : 'Pendente'}<br>Valor recebido: ${brl(payment.received)}<br>Saldo pendente: ${brl(payment.pending)}${payment.advance > 0 ? `<br>Descontado (adiantamento): ${brl(payment.advance)}` : ''}</td>
+      </tr>`;
+      },
     )
     .join("");
 
@@ -42,10 +46,10 @@ export function buildReportHtml(year: number, month0: number, stats: MonthStats,
     </div>
     ${
       registered.length
-        ? `<table><thead><tr><th>Data</th><th>Período</th><th>Descrição</th><th class="r">Valor</th><th>Pagamento</th></tr></thead><tbody>${rows}</tbody></table>`
+        ? `<table><thead><tr><th>Início / Fim</th><th>Descrição</th><th class="r">Valores</th><th>Recebimento</th></tr></thead><tbody>${rows}</tbody></table>`
         : "<p>Nenhuma viagem registrada neste mês.</p>"
     }
-    <div class="foot">Total recebido considera apenas viagens concluídas e pagas.${
+    <div class="foot">Total recebido considera valores recebidos nas viagens concluídas, incluindo adiantamentos sem contá-los novamente. Descontos reduzem o valor líquido.${
       stats.totalPending > 0 ? ` A receber: ${brl(stats.totalPending)}.` : ""
     }</div>
   </body></html>`;

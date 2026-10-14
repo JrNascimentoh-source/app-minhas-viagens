@@ -16,11 +16,14 @@ export type Database = {
     Tables: {
       trips: {
         Row: {
+          advance_amount: number
           amount: number
           completed: boolean
+          completed_at: string | null
           created_at: string
           departed_at: string
           description: string
+          discount_amount: number
           id: string
           next_reminder_at: string | null
           paid: boolean
@@ -31,11 +34,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          advance_amount?: number
           amount: number
           completed?: boolean
+          completed_at?: string | null
           created_at?: string
           departed_at?: string
           description?: string
+          discount_amount?: number
           id?: string
           next_reminder_at?: string | null
           paid?: boolean
@@ -46,11 +52,14 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          advance_amount?: number
           amount?: number
           completed?: boolean
+          completed_at?: string | null
           created_at?: string
           departed_at?: string
           description?: string
+          discount_amount?: number
           id?: string
           next_reminder_at?: string | null
           paid?: boolean

@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { MONTHS, PERIOD_LABEL, brl, formatBR } from "@/lib/dates";
+import { MONTHS, PERIOD_LABEL, brl, formatBR, formatTime, periodOf, toISODate } from "@/lib/dates";
+import { paymentSummary } from '@/lib/payments';
 import type { Trip } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -27,18 +28,18 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-3xl border border-border bg-card p-5 shadow-sm", className)}>
+    <div className={cn("rounded-lg border border-border bg-card p-5 shadow-sm", className)}>
       {children}
     </div>
   );
 }
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  label: string;
+  label?: string;
   variant?: "primary" | "outline" | "ghost" | "danger";
 };
 
-export function Button({ label, variant = "primary", className, ...rest }: ButtonProps) {
+export function Button({ label, children, variant = "primary", className, ...rest }: ButtonProps) {
   const styles = {
     primary:
       "gradient-brand text-primary-foreground font-bold shadow-md hover:opacity-90 active:scale-[0.98]",
@@ -52,12 +53,12 @@ export function Button({ label, variant = "primary", className, ...rest }: Butto
     <button
       {...rest}
       className={cn(
-        "flex h-12 items-center justify-center rounded-2xl px-4 text-sm transition-all disabled:opacity-50",
+        "flex h-12 scroll-mb-32 items-center justify-center rounded-lg px-4 text-sm transition-all disabled:opacity-50",
         styles,
         className,
       )}
     >
-      {label}
+      {children ?? label}
     </button>
   );
 }
@@ -73,7 +74,7 @@ export function Field({
   return (
     <label className="flex flex-col gap-2">
       <span className="text-xs font-extrabold tracking-widest text-gold uppercase">{label}</span>
-      <div className="flex h-13 items-center gap-3 rounded-2xl border border-input bg-card px-4 focus-within:border-ring">
+      <div className="flex h-13 items-center gap-3 rounded-lg border border-input bg-card px-4 focus-within:border-ring">
         {icon}
         <input
           {...inputProps}
@@ -167,25 +168,30 @@ export function DonutChart({
 }
 
 export function TripRow({ trip, onClick }: { trip: Trip; onClick?: () => void }) {
+  const payment = paymentSummary(trip);
+  const end = trip.completed_at ?? trip.registered_at;
   return (
-    <button
+    <Button variant="ghost"
       onClick={onClick}
-      className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-muted/50"
+      className="h-auto w-full flex-col items-stretch gap-3 rounded-lg border border-border bg-card px-4 py-4 text-left transition-colors hover:bg-muted/50"
     >
       <div className="min-w-0">
-        <p className="text-sm font-bold text-foreground">
-          {formatBR(trip.trip_date)} · {PERIOD_LABEL[trip.period]}
-        </p>
-        <p className="truncate text-xs font-medium text-muted-foreground">
+        <p className="text-xs font-semibold text-foreground">Início · {formatBR(trip.trip_date)} · {formatTime(trip.departed_at)} · {PERIOD_LABEL[trip.period]}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{end ? `Fim · ${formatBR(toISODate(new Date(end)))} · ${formatTime(end)} · ${PERIOD_LABEL[periodOf(new Date(end))]}` : 'Fim · Em aberto'}</p>
+        <p className="mt-2 break-words text-sm font-medium text-foreground">
           {trip.description || "Sem descrição"}
         </p>
       </div>
-      <div className="shrink-0 text-right">
-        <p className="text-sm font-bold text-foreground">{brl(Number(trip.amount))}</p>
-        <p className={cn("text-xs font-semibold", trip.paid ? "text-ok" : "text-accent")}>
-          {trip.status === "open" ? "Em aberto" : trip.paid ? "Pago" : "A receber"}
+      <div className="border-t border-border pt-2">
+        <p className="text-sm font-bold text-foreground">Viagem · {brl(payment.gross)}</p>
+        {payment.advance > 0 && <p className="mt-1 text-xs text-accent">Descontado · Adiantamento {brl(payment.advance)}</p>}
+        {payment.discount > 0 && <p className="mt-1 text-xs text-muted-foreground">Desconto · {brl(payment.discount)}</p>}
+        <p className={cn("mt-1 text-sm font-semibold", trip.paid ? "text-ok" : "text-accent")}>
+          {trip.status === 'open' ? 'Em aberto' : trip.paid ? `${payment.advance > 0 ? 'Valor recebido' : 'Recebido'} · ${brl(payment.received)}` : `Pendente · ${brl(payment.pending)}`}
         </p>
+        {!trip.paid && payment.advance > 0 && <p className="mt-1 text-xs text-ok">Valor recebido · {brl(payment.received)}</p>}
+        {trip.paid && payment.advance > 0 && <p className="mt-1 text-xs text-muted-foreground">Na finalização · {brl(payment.balance)}</p>}
       </div>
-    </button>
+    </Button>
   );
 }

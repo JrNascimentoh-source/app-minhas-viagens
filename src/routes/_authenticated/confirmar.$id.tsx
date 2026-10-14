@@ -2,8 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
-import { Button, Card, Screen, Title } from "@/components/ui";
-import { PERIOD_LABEL, brl, formatBR, formatTime } from "@/lib/dates";
+import { Button, Card, Field, Screen, Title } from "@/components/ui";
+import { PERIOD_LABEL, brl, formatBR, formatTime, parseMoney } from "@/lib/dates";
+import { paymentSummary } from '@/lib/payments';
 import { confirmTrip, getTrip } from "@/lib/trips";
 import type { Trip } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,10 @@ function ConfirmPage() {
   const [completed, setCompleted] = useState<boolean | null>(null);
   const [paid, setPaid] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
+  const [withDiscount, setWithDiscount] = useState<boolean | null>(null);
+  const [discountText, setDiscountText] = useState('');
+  const discount = withDiscount ? parseMoney(discountText) : 0;
+  const payment = trip ? paymentSummary({ ...trip, discount_amount: discount ?? 0 }) : null;
 
   useEffect(() => {
     getTrip(id)
@@ -41,13 +46,25 @@ function ConfirmPage() {
       toast.info("Falta uma resposta", { description: "A viagem foi concluída?" });
       return;
     }
-    if (completed && paid === null) {
+    if (completed && withDiscount === null) {
+      toast.info('Escolha Viagem Cheia ou Viagem C/ Desconto.');
+      return;
+    }
+    if (completed && (discount === null || (withDiscount && discount <= 0))) {
+      toast.error('Informe um desconto maior que zero.');
+      return;
+    }
+    if (completed && payment && payment.balance < 0) {
+      toast.error('Adiantamento e desconto ultrapassam o valor da viagem.');
+      return;
+    }
+    if (completed && payment?.balance !== 0 && paid === null) {
       toast.info("Falta uma resposta", { description: "Você já recebeu o pagamento?" });
       return;
     }
     setBusy(true);
     try {
-      await confirmTrip(id, { completed, paid: paid === true });
+      await confirmTrip(id, { completed, paid: paid === true || payment?.balance === 0, discountAmount: discount ?? 0 });
       toast.success(completed ? "Viagem registrada" : "Tudo bem", {
         description: completed ? "Ela entrou para o seu registro do mês." : "A viagem continua em aberto.",
       });
@@ -91,9 +108,24 @@ function ConfirmPage() {
         </div>
       </Card>
 
-      {completed === true && (
+      {completed === true && <div className="flex flex-col gap-3">
+        <p className="text-sm font-bold">Finalização da viagem</p>
+        <div className="grid grid-cols-2 gap-2">
+          <Button label="Viagem Cheia" variant={withDiscount === false ? 'primary' : 'outline'} onClick={() => setWithDiscount(false)} />
+          <Button label="Viagem C/ Desconto" variant={withDiscount === true ? 'primary' : 'outline'} className="h-auto min-h-12 py-2" onClick={() => setWithDiscount(true)} />
+        </div>
+        {withDiscount && <Field label="Valor do desconto (R$)" value={discountText} onChange={(e) => setDiscountText(e.target.value)} inputMode="decimal" placeholder="0,00" />}
+        {payment && <div className="space-y-1 border-y border-border py-3 text-sm">
+          <p>Valor da viagem <strong className="float-right">{brl(payment.gross)}</strong></p>
+          <p>Adiantamento recebido <strong className="float-right">{brl(payment.advance)}</strong></p>
+          <p>Desconto <strong className="float-right">{brl(payment.discount)}</strong></p>
+          <p className="text-accent">Saldo a receber <strong className="float-right">{brl(payment.balance)}</strong></p>
+        </div>}
+      </div>}
+
+      {completed === true && withDiscount !== null && payment && payment.balance > 0 && (
         <Card className="flex flex-col gap-3">
-          <p className="text-sm font-extrabold text-foreground">Já recebeu o pagamento?</p>
+          <p className="text-sm font-extrabold text-foreground">Já recebeu o saldo de {brl(payment.balance)}?</p>
           <div className="flex gap-2">
             <Choice label="Sim, recebi" selected={paid === true} onClick={() => setPaid(true)} />
             <Choice label="Ainda não" selected={paid === false} onClick={() => setPaid(false)} />
@@ -101,14 +133,14 @@ function ConfirmPage() {
         </Card>
       )}
 
-      <Button label={busy ? "Salvando..." : "Confirmar"} onClick={save} disabled={busy} />
+      <Button label={busy ? "Salvando..." : "Confirmar"} onClick={save} disabled={busy || !trip} />
     </Screen>
   );
 }
 
 function Choice({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
-    <button
+    <Button variant={selected ? 'primary' : 'outline'}
       onClick={onClick}
       className={cn(
         "h-12 flex-1 rounded-2xl text-sm font-bold transition-all active:scale-[0.98]",
@@ -116,6 +148,6 @@ function Choice({ label, selected, onClick }: { label: string; selected: boolean
       )}
     >
       {label}
-    </button>
+    </Button>
   );
 }

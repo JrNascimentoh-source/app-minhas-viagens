@@ -1,14 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Card, MonthSwitcher, Screen, Title, TripRow } from "@/components/ui";
+import { Button, Card, MonthSwitcher, Screen, Title, TripRow } from "@/components/ui";
+import { TripEditor } from '@/components/TripEditor';
 import { brl, daysInMonth, formatBR, toISODate } from "@/lib/dates";
 import {
   dayStatus,
   deleteTrip,
   groupByDate,
   listTripsByMonth,
-  markPaid,
   type DayStatus,
 } from "@/lib/trips";
 import type { Trip } from "@/lib/types";
@@ -86,12 +86,6 @@ function CalendarPage() {
 
   const dayTrips = selected ? (byDate[selected] ?? []) : [];
 
-  const doMarkPaid = async (trip: Trip) => {
-    await markPaid(trip.id);
-    setActionTrip(null);
-    load();
-  };
-
   const doDelete = async (trip: Trip) => {
     await deleteTrip(trip.id);
     setActionTrip(null);
@@ -131,9 +125,10 @@ function CalendarPage() {
         </div>
       )}
 
-      {actionTrip && (
+      {actionTrip?.status === 'registered' && <TripEditor trip={actionTrip} onClose={() => setActionTrip(null)} onSaved={load} />}
+      {actionTrip?.status === 'open' && (
         <div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay p-4"
           onClick={() => setActionTrip(null)}
         >
           <div
@@ -145,7 +140,7 @@ function CalendarPage() {
               {actionTrip.description || "Viagem"} · {brl(Number(actionTrip.amount))}
             </p>
             {actionTrip.status === "open" && (
-              <button
+              <Button variant="outline"
                 className="rounded-2xl px-4 py-3 text-left text-sm font-bold text-accent hover:bg-muted"
                 onClick={() => {
                   setActionTrip(null);
@@ -153,28 +148,15 @@ function CalendarPage() {
                 }}
               >
                 Confirmar viagem
-              </button>
+              </Button>
             )}
-            {actionTrip.status === "registered" && !actionTrip.paid && (
-              <button
-                className="rounded-2xl px-4 py-3 text-left text-sm font-bold text-ok hover:bg-muted"
-                onClick={() => doMarkPaid(actionTrip)}
-              >
-                Marcar como pago
-              </button>
-            )}
-            <button
-              className="rounded-2xl px-4 py-3 text-left text-sm font-bold text-destructive hover:bg-muted"
-              onClick={() => doDelete(actionTrip)}
-            >
-              Excluir
-            </button>
-            <button
+            <Button label="Excluir" variant="danger" onClick={() => { if (window.confirm('Excluir esta viagem? Não é possível desfazer.')) doDelete(actionTrip).catch(() => toast.error('Não foi possível excluir.')); }} />
+            <Button variant="ghost"
               className="rounded-2xl px-4 py-3 text-left text-sm font-semibold text-muted-foreground hover:bg-muted"
               onClick={() => setActionTrip(null)}
             >
               Fechar
-            </button>
+            </Button>
           </div>
         </div>
       )}
