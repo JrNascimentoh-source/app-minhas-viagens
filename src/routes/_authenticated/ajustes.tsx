@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun, Trash2 } from "lucide-react";
+import { toast } from 'sonner';
+import { clearTrips } from '@/lib/trips';
 import { supabase } from "@/integrations/supabase/client";
-import { Card, Screen, Title } from "@/components/ui";
+import { Button, Card, Screen, Title } from "@/components/ui";
 import { useTheme, type ThemeMode } from "@/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +33,9 @@ function SettingsPage() {
   const { mode, setMode } = useTheme();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [clearing, setClearing] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [confirmation, setConfirmation] = useState('');
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -39,9 +44,11 @@ function SettingsPage() {
     });
   }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+  const clear = async () => {
+    setBusy(true);
+    try { await clearTrips(); toast.success('Histórico limpo'); setClearing(false); navigate({ to: '/' }); }
+    catch (e) { toast.error(e instanceof Error ? e.message : 'Não foi possível limpar o histórico.'); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -58,7 +65,8 @@ function SettingsPage() {
         <p className="text-xs font-extrabold tracking-widest text-gold uppercase">Tema</p>
         <div className="flex gap-2">
           {MODES.map((m) => (
-            <button
+            <Button
+              variant={mode === m.value ? 'primary' : 'ghost'}
               key={m.value}
               onClick={() => setMode(m.value)}
               className={cn(
@@ -70,7 +78,7 @@ function SettingsPage() {
             >
               <m.icon size={16} />
               {m.label}
-            </button>
+            </Button>
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
@@ -78,13 +86,16 @@ function SettingsPage() {
         </p>
       </Card>
 
-      <button
-        onClick={signOut}
-        className="flex h-13 items-center justify-center gap-2 rounded-2xl border border-destructive text-base font-bold text-destructive transition-all hover:bg-destructive/10 active:scale-[0.98]"
-      >
-        <LogOut size={18} />
-        Sair da conta
-      </button>
+      <Button variant="danger" onClick={() => { setConfirmation(''); setClearing(true); }} className="gap-2"><Trash2 size={18} />Limpar viagens</Button>
+      {clearing && <div className="fixed inset-0 z-[70] flex items-center justify-center bg-overlay p-4">
+        <section role="dialog" aria-modal="true" aria-labelledby="clear-title" className="w-full max-w-md rounded-lg border border-border bg-card p-5">
+          <h2 id="clear-title" className="text-xl font-bold">Limpar todas as viagens?</h2>
+          <p className="my-3 text-sm text-muted-foreground">Todas as suas viagens, incluindo as em aberto, serão excluídas. O calendário e os relatórios serão zerados. Não é possível desfazer.</p>
+          <label className="mb-4 flex flex-col gap-2 text-sm">Digite LIMPAR para confirmar<input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} className="rounded-lg border border-input bg-background px-3 py-2 text-foreground" /></label>
+          <Button label={busy ? 'Limpando...' : 'Limpar definitivamente'} variant="danger" className="w-full" disabled={busy || confirmation !== 'LIMPAR'} onClick={clear} />
+          <Button label="Cancelar" variant="ghost" className="mt-2 w-full" disabled={busy} onClick={() => setClearing(false)} />
+        </section>
+      </div>}
     </Screen>
   );
 }

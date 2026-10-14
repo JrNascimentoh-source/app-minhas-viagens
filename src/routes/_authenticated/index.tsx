@@ -5,6 +5,9 @@ import { Button, Card, DonutChart, Screen, Title, TripRow } from "@/components/u
 import { MONTHS, PERIOD_LABEL, brl, formatBR, formatTime } from "@/lib/dates";
 import { listOpenTrips, listTripsByMonth, monthStats, snoozeTrip } from "@/lib/trips";
 import type { Trip } from "@/lib/types";
+import { LogOut } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { TripEditor } from '@/components/TripEditor';
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -29,6 +32,15 @@ function HomePage() {
   const [monthTrips, setMonthTrips] = useState<Trip[]>([]);
   const [open, setOpen] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const signOut = async () => {
+    setSigningOut(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) { toast.error('Não foi possível sair. Tente novamente.'); setSigningOut(false); return; }
+    navigate({ to: '/auth', replace: true });
+  };
 
   const load = useCallback(async () => {
     try {
@@ -61,7 +73,10 @@ function HomePage() {
 
   return (
     <Screen>
-      <Title sub={`${MONTHS[month0]} ${year}`}>Minhas viagens</Title>
+      <div className="flex items-start justify-between gap-3">
+        <Title sub={`${MONTHS[month0]} ${year}`}>Minhas viagens</Title>
+        <Button variant="ghost" title="Sair da conta" aria-label="Sair da conta" disabled={signingOut} onClick={signOut} className="h-auto min-w-12 flex-col gap-1 px-2 py-1 text-destructive"><LogOut size={24} /><span className="text-xs">Sair</span></Button>
+      </div>
 
       <Card className="flex flex-row items-center gap-5">
         <DonutChart percent={stats.percentWorked} label={`${stats.percentWorked}% dos dias trabalhados`}>
@@ -120,9 +135,10 @@ function HomePage() {
             Nenhuma viagem registrada ainda neste mês. Toque no + para adicionar.
           </p>
         ) : (
-          recent.map((t) => <TripRow key={t.id} trip={t} />)
+          recent.map((t) => <TripRow key={t.id} trip={t} onClick={() => setSelectedTrip(t)} />)
         )}
       </div>
+      {selectedTrip && <TripEditor trip={selectedTrip} onClose={() => setSelectedTrip(null)} onSaved={load} />}
     </Screen>
   );
 }

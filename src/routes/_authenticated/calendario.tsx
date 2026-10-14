@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Card, MonthSwitcher, Screen, Title, TripRow } from "@/components/ui";
+import { Button, Card, MonthSwitcher, Screen, Title, TripRow } from "@/components/ui";
+import { TripEditor } from '@/components/TripEditor';
 import { brl, daysInMonth, formatBR, toISODate } from "@/lib/dates";
 import {
   dayStatus,
@@ -131,9 +132,10 @@ function CalendarPage() {
         </div>
       )}
 
-      {actionTrip && (
+      {actionTrip?.status === 'registered' && <TripEditor trip={actionTrip} onClose={() => setActionTrip(null)} onSaved={load} />}
+      {actionTrip?.status === 'open' && (
         <div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay p-4"
           onClick={() => setActionTrip(null)}
         >
           <div
@@ -163,12 +165,7 @@ function CalendarPage() {
                 Marcar como pago
               </button>
             )}
-            <button
-              className="rounded-2xl px-4 py-3 text-left text-sm font-bold text-destructive hover:bg-muted"
-              onClick={() => doDelete(actionTrip)}
-            >
-              Excluir
-            </button>
+            <Button label="Excluir" variant="danger" onClick={() => { if (window.confirm('Excluir esta viagem? Não é possível desfazer.')) doDelete(actionTrip).catch(() => toast.error('Não foi possível excluir.')); }} />
             <button
               className="rounded-2xl px-4 py-3 text-left text-sm font-semibold text-muted-foreground hover:bg-muted"
               onClick={() => setActionTrip(null)}
