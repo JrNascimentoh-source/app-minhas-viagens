@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
-import { Button, Card, Screen, Title } from "@/components/ui";
+import { Button, Card, Field, Screen, Title } from "@/components/ui";
 import { maskDate, parseBR, parseMoney, toISODate } from "@/lib/dates";
 import { createTrip } from "@/lib/trips";
 
@@ -30,6 +30,8 @@ function NewTripPage() {
   const [amountText, setAmountText] = useState("");
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hasAdvance, setHasAdvance] = useState(false);
+  const [advanceText, setAdvanceText] = useState('');
 
   const save = async () => {
     const iso = parseBR(dateText);
@@ -44,7 +46,9 @@ function NewTripPage() {
     }
     setBusy(true);
     try {
-      await createTrip({ tripDate: iso, amount, description: description.trim() });
+      const advanceAmount = hasAdvance ? parseMoney(advanceText) : 0;
+      if (advanceAmount === null || (hasAdvance && advanceAmount <= 0)) throw new Error('Informe o valor recebido adiantado.');
+      await createTrip({ tripDate: iso, amount, description: description.trim(), advanceAmount });
       toast.success("Viagem anotada", { description: "Ela ficará em aberto até você confirmar." });
       navigate({ to: "/" });
     } catch (e: any) {
@@ -103,6 +107,11 @@ function NewTripPage() {
             className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-base font-semibold text-foreground outline-none placeholder:text-muted-foreground focus:border-ring"
           />
         </label>
+        <label className="flex items-center gap-3 text-sm font-bold text-foreground">
+          <input type="checkbox" checked={hasAdvance} onChange={(e) => setHasAdvance(e.target.checked)} className="h-5 w-5 accent-primary" />
+          Valor de adiantamento
+        </label>
+        {hasAdvance && <Field label="Adiantamento recebido (R$)" value={advanceText} onChange={(e) => setAdvanceText(e.target.value)} inputMode="decimal" placeholder="0,00" />}
       </Card>
 
       <Button label={busy ? "Salvando..." : "Anotar viagem"} onClick={save} disabled={busy} />
