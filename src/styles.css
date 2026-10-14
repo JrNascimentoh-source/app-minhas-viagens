@@ -170,6 +170,17 @@
 }
 .neon-add-inner { background: var(--nav-surface); border-radius: 6px; }
 .dark [class*="bg-card"] { border-top-color: color-mix(in oklab, var(--accent) 35%, var(--border)); }
+[class*="rounded-2xl"], [class*="rounded-3xl"] { border-radius: 8px; }
+.neon-navigation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--edge-gradient);
+  border-radius: inherit;
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
+  z-index: -1;
+}
+.neon-navigation { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }

@@ -28,7 +28,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-3xl border border-border bg-card p-5 shadow-sm", className)}>
+    <div className={cn("rounded-lg border border-border bg-card p-5 shadow-sm", className)}>
       {children}
     </div>
   );
@@ -53,7 +53,7 @@ export function Button({ label, children, variant = "primary", className, ...res
     <button
       {...rest}
       className={cn(
-        "flex h-12 items-center justify-center rounded-2xl px-4 text-sm transition-all disabled:opacity-50",
+        "flex h-12 scroll-mb-32 items-center justify-center rounded-lg px-4 text-sm transition-all disabled:opacity-50",
         styles,
         className,
       )}
@@ -74,7 +74,7 @@ export function Field({
   return (
     <label className="flex flex-col gap-2">
       <span className="text-xs font-extrabold tracking-widest text-gold uppercase">{label}</span>
-      <div className="flex h-13 items-center gap-3 rounded-2xl border border-input bg-card px-4 focus-within:border-ring">
+      <div className="flex h-13 items-center gap-3 rounded-lg border border-input bg-card px-4 focus-within:border-ring">
         {icon}
         <input
           {...inputProps}
