@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Trip } from "./types";
 import { daysInMonth, monthRange, periodOf, toISODate } from "./dates";
+import { paymentSummary, validatePayment } from './payments';
 
 export const REMINDER_HOURS = 9;
 
@@ -10,13 +11,16 @@ export async function createTrip(input: {
   tripDate: string;
   amount: number;
   description: string;
+  advanceAmount?: number;
 }): Promise<Trip> {
   const now = new Date();
+  validatePayment(input.amount, input.advanceAmount ?? 0, 0);
   const { data, error } = await supabase
     .from("trips")
     .insert({
       trip_date: input.tripDate,
       amount: input.amount,
+      advance_amount: input.advanceAmount ?? 0,
       description: input.description,
       departed_at: now.toISOString(),
       period: periodOf(now),
@@ -58,12 +62,19 @@ export async function listTripsByMonth(year: number, month0: number): Promise<Tr
   return (data ?? []) as Trip[];
 }
 
-export async function confirmTrip(id: string, answers: { completed: boolean; paid: boolean }): Promise<Trip> {
+export async function confirmTrip(id: string, answers: { completed: boolean; paid: boolean; discountAmount?: number }): Promise<Trip> {
+  const trip = await getTrip(id);
+  if (!trip) throw new Error('Viagem não encontrada.');
+  const discount = answers.discountAmount ?? 0;
+  validatePayment(Number(trip.amount), Number(trip.advance_amount), discount);
+  if (answers.completed && new Date(trip.departed_at).getTime() > Date.now()) throw new Error('O início da viagem não pode estar no futuro.');
   const patch = answers.completed
     ? {
         status: "registered" as const,
         completed: true,
         paid: answers.paid,
+        discount_amount: discount,
+        completed_at: trip.completed_at ?? new Date().toISOString(),
         registered_at: new Date().toISOString(),
         next_reminder_at: null,
       }
@@ -85,6 +96,23 @@ export async function markPaid(id: string): Promise<void> {
 
 export async function deleteTrip(id: string): Promise<void> {
   const { error } = await supabase.from("trips").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function clearTrips(): Promise<void> {
+  const { data, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!data.user) throw new Error('Entre novamente para limpar o histórico.');
+  const { error } = await supabase.from('trips').delete().eq('user_id', data.user.id);
+  if (error) throw error;
+}
+
+export async function updateTrip(id: string, patch: Pick<Trip, 'amount' | 'advance_amount' | 'discount_amount' | 'description' | 'departed_at' | 'completed_at' | 'paid'>): Promise<void> {
+  validatePayment(patch.amount, patch.advance_amount, patch.discount_amount);
+  const start = new Date(patch.departed_at);
+  const end = patch.completed_at ? new Date(patch.completed_at) : null;
+  if (!Number.isFinite(start.getTime()) || (end && (!Number.isFinite(end.getTime()) || end < start || end.getTime() > Date.now()))) throw new Error('Confira as datas de início e fim.');
+  const { error } = await supabase.from('trips').update({ ...patch, trip_date: toISODate(start), period: periodOf(start) }).eq('id', id);
   if (error) throw error;
 }
 
@@ -130,8 +158,8 @@ export function monthStats(trips: Trip[], year: number, month0: number, now = ne
     else if (s === "none") notWorkedDays++;
   }
   const registered = trips.filter((t) => t.status === "registered");
-  const totalReceived = registered.filter((t) => t.paid).reduce((sum, t) => sum + Number(t.amount), 0);
-  const totalPending = registered.filter((t) => !t.paid).reduce((sum, t) => sum + Number(t.amount), 0);
+  const totalReceived = registered.reduce((sum, t) => sum + paymentSummary(t).received, 0);
+  const totalPending = registered.reduce((sum, t) => sum + paymentSummary(t).pending, 0);
   const base = workedDays + notWorkedDays;
   return {
     workedDays,

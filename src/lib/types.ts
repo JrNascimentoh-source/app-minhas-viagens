@@ -6,6 +6,9 @@ export type Trip = {
   user_id: string;
   trip_date: string; // YYYY-MM-DD
   amount: number;
+  advance_amount: number;
+  discount_amount: number;
+  completed_at: string | null;
   description: string;
   departed_at: string; // ISO
   period: Period;
