@@ -9,7 +9,6 @@ import {
   deleteTrip,
   groupByDate,
   listTripsByMonth,
-  markPaid,
   type DayStatus,
 } from "@/lib/trips";
 import type { Trip } from "@/lib/types";
@@ -87,12 +86,6 @@ function CalendarPage() {
 
   const dayTrips = selected ? (byDate[selected] ?? []) : [];
 
-  const doMarkPaid = async (trip: Trip) => {
-    await markPaid(trip.id);
-    setActionTrip(null);
-    load();
-  };
-
   const doDelete = async (trip: Trip) => {
     await deleteTrip(trip.id);
     setActionTrip(null);
@@ -147,7 +140,7 @@ function CalendarPage() {
               {actionTrip.description || "Viagem"} · {brl(Number(actionTrip.amount))}
             </p>
             {actionTrip.status === "open" && (
-              <button
+              <Button variant="outline"
                 className="rounded-2xl px-4 py-3 text-left text-sm font-bold text-accent hover:bg-muted"
                 onClick={() => {
                   setActionTrip(null);
@@ -155,23 +148,15 @@ function CalendarPage() {
                 }}
               >
                 Confirmar viagem
-              </button>
-            )}
-            {actionTrip.status === "registered" && !actionTrip.paid && (
-              <button
-                className="rounded-2xl px-4 py-3 text-left text-sm font-bold text-ok hover:bg-muted"
-                onClick={() => doMarkPaid(actionTrip)}
-              >
-                Marcar como pago
-              </button>
+              </Button>
             )}
             <Button label="Excluir" variant="danger" onClick={() => { if (window.confirm('Excluir esta viagem? Não é possível desfazer.')) doDelete(actionTrip).catch(() => toast.error('Não foi possível excluir.')); }} />
-            <button
+            <Button variant="ghost"
               className="rounded-2xl px-4 py-3 text-left text-sm font-semibold text-muted-foreground hover:bg-muted"
               onClick={() => setActionTrip(null)}
             >
               Fechar
-            </button>
+            </Button>
           </div>
         </div>
       )}
