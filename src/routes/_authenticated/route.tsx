@@ -41,22 +41,25 @@ function AuthenticatedLayout() {
       <Outlet />
 
       {/* Barra de navegação inferior */}
-      <nav className="fixed bottom-4 left-1/2 z-50 w-[min(24rem,calc(100%-1.5rem))] -translate-x-1/2">
-        <div className="relative flex items-center justify-between rounded-[2rem] border-2 border-accent/60 bg-card/95 px-3 py-2 shadow-xl backdrop-blur">
+      <nav aria-label="Navegação principal" className="fixed bottom-5 left-1/2 z-50 w-[min(30rem,calc(100%-1.5rem))] -translate-x-1/2">
+        <div className="neon-navigation">
+        <div className="neon-navigation-inner grid grid-cols-[1fr_1fr_3.75rem_1fr_1fr] items-center px-3 py-1">
           {TABS.slice(0, 2).map((t) => (
             <TabLink key={t.to} {...t} active={pathname === t.to} />
           ))}
-          <div className="w-14" />
+           <div />
           {TABS.slice(2).map((t) => (
             <TabLink key={t.to} {...t} active={pathname === t.to} />
           ))}
           <Link
             to="/nova-viagem"
             aria-label="Nova viagem"
-            className="absolute -top-5 left-1/2 flex h-13 w-13 -translate-x-1/2 items-center justify-center rounded-2xl gradient-brand text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
+            title="Nova viagem"
+            className="neon-add absolute -top-3 left-1/2 flex h-14 w-14 items-center justify-center text-nav-text transition-transform hover:scale-105"
           >
-            <Plus size={28} />
+            <span className="neon-add-inner flex h-full w-full items-center justify-center"><Plus size={28} /></span>
           </Link>
+        </div>
         </div>
       </nav>
     </div>
@@ -77,9 +80,10 @@ function TabLink({
   return (
     <Link
       to={to}
+      data-active={active}
       className={cn(
-        "flex w-16 flex-col items-center gap-0.5 py-1 text-[11px]",
-        active ? "font-extrabold text-accent" : "font-semibold text-muted-foreground",
+        "neon-navigation-tab flex flex-col items-center gap-1 rounded-md py-2 text-[10px]",
+        active ? "font-extrabold" : "font-semibold text-nav-text/70",
       )}
     >
       <Icon size={22} />
