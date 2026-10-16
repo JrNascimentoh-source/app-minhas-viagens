@@ -55,7 +55,7 @@ function AuthenticatedLayout() {
             to="/nova-viagem"
             aria-label="Nova viagem"
             title="Nova viagem"
-            className="neon-add absolute -top-3 left-1/2 flex h-14 w-14 items-center justify-center text-nav-text transition-transform hover:scale-105"
+            className="neon-add absolute top-1/2 left-1/2 -mt-6 flex h-12 w-12 items-center justify-center text-nav-text transition-transform hover:scale-105"
           >
             <span className="neon-add-inner flex h-full w-full items-center justify-center"><Plus size={28} /></span>
           </Link>
