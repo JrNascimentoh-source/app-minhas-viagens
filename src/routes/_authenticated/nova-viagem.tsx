@@ -91,7 +91,7 @@ function NewTripPage() {
           <input
             value={amountText}
             onChange={(e) => setAmountText(e.target.value)}
-            placeholder="160,00"
+            placeholder="0,00"
             inputMode="decimal"
             className={inputCls}
           />
