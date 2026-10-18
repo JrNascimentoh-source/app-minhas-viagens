@@ -1,0 +1,35 @@
+{
+  "name": "Minhas Viagens",
+  "short_name": "Viagens",
+  "description": "Anote viagens, confirme conclusão e pagamento, veja o calendário e gere relatório mensal em PDF.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#15121F",
+  "theme_color": "#15121F",
+  "categories": ["productivity", "finance"],
+  "icons": [
+    {
+      "src": "/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
