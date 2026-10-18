@@ -138,6 +138,14 @@
 @layer base {
   * { letter-spacing: 0; }
   body { min-width: 320px; }
+  /* iPhone: respeitar notch, cantos arredondados e barra do sistema */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav:has(> .neon-navigation) { bottom: calc(1.25rem + env(safe-area-inset-bottom)); }
   input[type="datetime-local"] { min-width: 0; color-scheme: light; }
   .dark input[type="datetime-local"] { color-scheme: dark; }
 }
