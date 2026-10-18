@@ -1,24 +1,42 @@
-# App Minhas Viagens
+# Minhas Viagens
 
-Além desse arquivos que estou enviando agora, vou te mandar mais alguns, espere eu terminar de mandar todos, quando eu enviar todos vou dizer pronto esta tudo ai, ai começamos a trabalhar no app certo.
+App web para motorista autônomo anotar viagens, confirmar conclusão e recebimento, ver o calendário do mês e gerar o relatório mensal em PDF.
 
-This project was built with [Lovable](https://lovable.dev).
+**App no ar:** https://launchpad-asset-garden.lovable.app
 
-## Build with Lovable
+## O que o app faz
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/aa2f693f-37eb-419e-aba8-b6df28eb1688).
+- **Início** – resumo do mês (dias trabalhados, total recebido) e destaque para as viagens que ainda aguardam confirmação.
+- **Nova viagem** – data, valor, descrição e, se for o caso, o valor de adiantamento já recebido.
+- **Confirmação** – se a viagem foi concluída e se o pagamento entrou. "Viagem Cheia" (sem desconto) ou "Viagem C/ Desconto" (informa o valor descontado).
+- **Calendário** – dias trabalhados, em aberto e sem viagem, com ações de marcar como recebido, editar ou excluir.
+- **Relatório** – resumo do mês e geração de PDF (abre em nova janela; escolha "Salvar como PDF").
+- **Ajustes** – tema claro, escuro ou automático.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Nos registros aparece **Recebido**, **Pendente** ou **Valor recebido**, com data, hora e período de início e fim da viagem.
 
-## Development
+## Rodar no computador
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Você precisa do Node.js instalado.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+git clone https://github.com/JrNascimentoh-source/app-minhas-viagens.git
+cd app-minhas-viagens
+npm install
 npm run dev
 ```
+
+O arquivo `.env` que vem no repositório já aponta para o banco do app, então ele funciona sem configuração extra.
+
+**Atenção:** rodando assim, o app usa o mesmo banco do app publicado — as viagens que você anotar aí aparecem no app do celular.
+
+## Sincronização
+
+Este repositório está ligado ao projeto no Lovable. Tudo que é alterado no Lovable é enviado para cá, e o que você enviar para cá volta para o Lovable.
+
+## Tecnologias
+
+- TanStack Start (React)
+- TypeScript
+- Tailwind CSS
+- Lovable Cloud (banco de dados e login)
